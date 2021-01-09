@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Almanac</title>
+	<link rel="stylesheet" type="text/css" href="sandbox.css" />
+
+<style>
+body {font-size:10pt; color:white; background-color:#000033; font-family: Consolas, monospace; }
+		table {border-collapse:collapse; }
+		table, th, td {border: 1px solid  #000066; padding:1px; background-color: #000033;}
+		th {background-color: #000055; color:yellow;  font-size:11pt; font-family: Kievit-Book, Gill Sans MT, Arial, Helvetica;}
+		td.f {text-align: right;}
+		td.b {text-align: center; font-size: large; color:#58D68D; font-weight:bold; }
+		td.n {vertical-align: text-top; text-align: center; font-family: Kievit-Book, Gill Sans MT, Arial, Helvetica; font-size:11pt;}
+
+td:nth-child(even) {background-color: #000044;}
+
+		* {box-sizing: border-box;}
+		.container 		{ width: 100%; background:#000033; word-wrap: break-word; }
+		.item 			{ float: left; border: 1px solid; background: #000033; }
+		.item.sun 		{ width: 128px; height: 128px; }
+		.item.moon 		{ width: 128px; height: 128px; }
+		.item.goes 		{ width: 384px; height: 384px; }
+		.item.almanac 	{ width: 384px; height: 256px; }
+		.item.sky 		{ width: 384px; height: 384px; }
+		.item.weather 	{ width: 384px; height: 384px; height: auto;}
+		.item.forecast 	{ width: 768px; height: 384px; height: auto;}
+		.item.news 		{ width: 768px; height: 384px; height: auto;}
+		.stamp {background: #000066; opacity: 0.5;position: absolute;border: 1px solid;		}
+
+		.center {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+	</style>
+
+<script src="imagesloaded.pkgd.js"></script>
+<script src="masonry.pkgd.min.js"></script>
+
+<script type="text/javascript">
+
+	base = "/cgi-bin/";
+	loc = "?loc=Sunnyside"
+
+	function timedRefresh() {
+		update1();
+		update15();
+		update60();
+		setInterval("update1();",  60 * 1000);		//  1 minute
+		setInterval("update15();", 60 * 1000 * 15);	// 15 minutes
+		setInterval("update60();", 60 * 1000 * 60); // 60 minutes
+	};
+
+	function update1() {
+		console.log("update 1");
+		get_data(base + "almanac.py" + loc, function(data) { document.getElementById("almanac").innerHTML = data; });
+		get_data(base + "sky.py" + loc,     function(data) { document.getElementById("sky").innerHTML     = data; });
+	}
+
+	function update15() {
+		get_data(base + "weather.py" + loc,  function(data) { document.getElementById("weather").innerHTML  = data; });
+		get_data(base + "forecast.py" + loc, function(data) { document.getElementById("forecast").innerHTML = data; });
+		get_data(base + "news.py", 		     function(data) { document.getElementById("news").innerHTML     = data; });
+	}
+
+	function update60() {
+		document.getElementById("sun").src = "https://umbra.nascom.nasa.gov/images/latest_aia_1700.gif";
+		//document.getElementById("moon").src = "https://api.usno.navy.mil/imagery/moon.png";
+		get_data(base + "moon.py", function(data) { document.getElementById("moon").innerHTML = data; });
+		document.getElementById("goes").src = "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/ne/GEOCOLOR/thumbnail.jpg";
+	}
+
+	function get_data(url, callback) {
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				try { var data = xmlhttp.responseText; }
+				catch(err) { console.log(err.message + " in " + xmlhttp.responseText); return; }
+				callback(data);
+			}
+		};
+		xmlhttp.open("GET", url, true);
+		xmlhttp.send();
+	}
+</script>
+</head>
+<body onload="JavaScript:timedRefresh();">
+  <div id="basic" class="container">
+    <div class="item goes"><img id="goes" style="width: 384px; height: 384px;"></div>
+    <div class="item sky" id="sky" ></div>
+	<div>
+		<div class="item sun"><img id="sun" style="height: 128px;"></div>
+		<div class="item moon center" id="moon" style="height: 128px;"></div>
+	</div>
+
+    <div class="item almanac" id="almanac"></div>
+    <div class="item weather" id="weather"></div>
+    <div class="item forecast" id="forecast"></div>
+    <div class="item news" id="news"></div>
+  </div>
+
+</body>
+<script>
+	var container = document.querySelector('#basic');
+	var msnry = new Masonry( container, { columnWidth: 384, percentPosition: true });
+	imagesLoaded( document.querySelector('#basic'), function( instance ) {
+  		msnry.masonry('layout');
+		console.log('all images are loaded');
+	});
+</script>
+</html>

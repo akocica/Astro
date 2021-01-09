@@ -1,0 +1,53 @@
+body {
+	margin: 0;
+	padding: 20px;
+	font-family:'Consolas';
+	font-size: 16px;
+}
+
+
+.yax, .xax {font-size: 14px;}
+
+.grid line {
+	stroke: green;
+	stroke-opacity: 0.1;
+	shape-rendering: crispEdges;
+}
+
+.grid path {
+	stroke-width: 0;
+}
+
+.line {
+	fill: none;
+	stroke: orange;
+	stroke-width: 2;
+	opacity: 0.85;
+}
+
+.dot {
+	fill: blue;
+	stroke-width: 0;
+	opacity: 0.2;
+}
+
+#chart {
+	padding: 10px;
+	background-color: #FEFEFE;
+	margin-bottom: 20px;
+}
+
+#status {
+	padding: 8px;
+	background-color: #FFEEEE;
+	margin-bottom: 8px;
+	font-size: 16pt;
+}
+#message {
+	padding: 8px;
+	background-color: #EFE;
+	margin-bottom: 8;
+	font-size: 14pt;
+	color:green;
+	word-wrap: break-word; width: 940px
+}

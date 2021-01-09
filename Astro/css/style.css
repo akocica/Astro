@@ -1,0 +1,7 @@
+body {font-size:9pt; color:white; background-color:#000033; font-family: Consolas, monospace; }
+table {border-collapse:collapse; }
+table, th, td, th {border: 1px solid  #000066; padding:1px; background-color: #000033;}
+th {background-color: #000055; color:yellow;  font-size:11pt; font-family: Kievit-Book, Gill Sans MT, Arial, Helvetica;}
+td.f {text-align: right;}
+td.b {text-align: center; font-size: large; color:#58D68D; font-weight:bold; }
+td.n {vertical-align: text-top; text-align: left; font-family: Kievit-Book, Gill Sans MT, Arial, Helvetica; font-size:10pt;}

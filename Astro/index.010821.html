@@ -1,0 +1,96 @@
+<html>
+<head>
+<meta charset="ascii">
+<title>Almanac</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript">
+
+base = "/cgi-bin/";
+loc = "?loc=Sunnyside"
+
+function timedRefresh() {
+	update1();
+	update15();
+	update60();
+	setInterval("update1();",  60 * 1000);		//  1 minute
+	setInterval("update15();", 60 * 1000 * 15);	// 15 minutes
+	setInterval("update60();", 60 * 1000 * 60); // 60 minutes
+};
+
+function update1() {
+	get_data(base + "almanac.py" + loc, function(data) { document.getElementById("almanac").innerHTML = data; });
+	get_data(base + "sky.py" + loc,     function(data) { document.getElementById("sky").innerHTML     = data; });
+}
+
+function update15() {
+	get_data(base + "weather.py" + loc,  function(data) { document.getElementById("weather").innerHTML  = data; });
+	get_data(base + "forecast.py" + loc, function(data) { document.getElementById("forecast").innerHTML = data; });
+	get_data(base + "news.py", 		     function(data) { document.getElementById("news").innerHTML     = data; });
+}
+
+function update60() {
+	document.getElementById("sun").src = "https://umbra.nascom.nasa.gov/images/latest_aia_1700.gif";
+	//document.getElementById("moon").src = "https://api.usno.navy.mil/imagery/moon.png";
+	get_data(base + "moon.py", function(data) { document.getElementById("moon").innerHTML = data; });
+	document.getElementById("goes").src = "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/ne/GEOCOLOR/thumbnail.jpg";
+}
+
+
+function get_data(url, callback) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            try { var data = xmlhttp.responseText; }
+            catch(err) { console.log(err.message + " in " + xmlhttp.responseText); return; }
+            callback(data);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+</script>
+</head>
+<body onload="JavaScript:timedRefresh();">
+<table>
+<tbody>
+
+<tr>
+	<td rowspan=1 colspan=1 style="width:480;text-align:center;">
+		<img id="goes"      style="width:90%;" >
+	</td>
+
+	<td rowspan=1 colspan=1>
+		<div id="sky"       style="text-align:center;"></div>
+	</td>
+
+	<td rowspan=1 colspan=1 style="width:160;" valign="top">
+		<img id="sun"       style="width:160; height:160;" >
+		<div id="moon"      style="width:160; height:160; background-color:black; text-align:center;"></div>
+	</td>
+
+	<td rowspan=1 colspan=1 valign="top">
+		<div id="almanac"  style="width:100%;height:100%;"></div>
+	</td>
+</tr>
+
+<tr>
+	<td rowspan=1 colspan=1 valign="top">
+		<div id="weather"  style="width:100%;height:100%;"></div>
+	</td>
+
+	<td rowspan=1 colspan=2>
+		<div id="forecast" style="width:100%;height:100%;"></div>
+	</td>
+
+	<td rowspan=1 colspan=3 valign="top">
+		<div id="news"></div>
+	</td>
+</tr>
+
+
+
+</tbody>
+</table>
+</body>
+</html>
