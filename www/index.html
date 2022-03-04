@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>D3-Celestial Starmap</title>
+    <script type="text/javascript" src="./lib/d3.min.js"></script>
+    <script
+      type="text/javascript"
+      src="./lib/d3.geo.projection.min.js"
+    ></script>
+    <script type="text/javascript" src="./lib/celestial.min.js"></script>
+    <link rel="stylesheet" href="./lib/celestial.css" />
+  </head>
+  <body onload="JavaScript:timedRefresh();">
+    <div style="overflow: hidden"><div id="celestial-map"></div></div>
+    <div id="celestial-form"></div>
+
+    <script type="text/javascript">
+      var config = {
+        zoomlevel: 12,
+        location: false,
+        controls: false,
+        interactive: false,
+        form: false,
+        width: 480,
+        projection: "azimuthalEquidistant",
+        datapath: "./data/",
+        stars: {
+          show: true,
+          limit: 8,
+          colors: true,
+          style: { fill: "#ffffff", opacity: 1 },
+          designation: true,
+          designationType: "desig",
+          designationStyle: {
+            fill: "#ddddbb",
+            font: "12px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif",
+            align: "left",
+            baseline: "top",
+          },
+          designationLimit: 4.0,
+          propername: true,
+          propernameType: "name",
+          propernameStyle: {
+            fill: "#ddddbb",
+            font: "10px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif",
+            align: "right",
+            baseline: "bottom",
+          },
+          propernameLimit: 1.25,
+          size: 8,
+          exponent: -0.28,
+          data: "stars.8.json",
+        },
+        dsos: {
+          show: true,
+          limit: 16,
+          colors: true,
+          style: { fill: "#ff7777", stroke: "#770000", width: 2, opacity: 0.8 },
+          names: true,
+          namesType: "name",
+          nameStyle: {
+            fill: "#cccccc",
+            font: "9px Helvetica, Arial, serif",
+            align: "left",
+            baseline: "top",
+          },
+          nameLimit: 16,
+          size: null,
+          exponent: 1.4,
+          data: "messier.json",
+          symbols: {
+            gg: { shape: "circle", fill: "#ffcccc" }, // Galaxy cluster
+            g: { shape: "ellipse", fill: "#ffcccc" }, // Generic galaxy
+            s: { shape: "ellipse", fill: "#ffcccc" }, // Spiral galaxy
+            s0: { shape: "ellipse", fill: "#ffcccc" }, // Lenticular galaxy
+            sd: { shape: "ellipse", fill: "#ffcccc" }, // Dwarf galaxy
+            e: { shape: "ellipse", fill: "#ffcccc" }, // Elliptical galaxy
+            i: { shape: "ellipse", fill: "#ffcccc" }, // Irregular galaxy
+            oc: {
+              shape: "circle",
+              fill: "#ffcccc",
+              stroke: "#ff0000",
+              width: 1.5,
+            }, // Open cluster
+            gc: { shape: "circle", fill: "#ffcccc" }, // Globular cluster
+            en: { shape: "square", fill: "#ffcccc" }, // Emission nebula
+            bn: {
+              shape: "square",
+              fill: "#ffcccc",
+              stroke: "#ff0000",
+              width: 2,
+            }, // Generic bright nebula
+            sfr: {
+              shape: "square",
+              fill: "#ffcccc",
+              stroke: "#ff0000",
+              width: 2,
+            }, // Star forming region
+            rn: { shape: "square", fill: "#ffcccc" }, // Reflection nebula
+            pn: { shape: "diamond", fill: "#ffcccc" }, // Planetary nebula
+            snr: { shape: "diamond", fill: "#ffcccc" }, // Supernova remnant
+            dn: {
+              shape: "square",
+              fill: "#ffcccc",
+              stroke: "#ff0000",
+              width: 2,
+            }, // Dark nebula grey
+            pos: {
+              shape: "marker",
+              fill: "#ffcccc",
+              stroke: "#ff0000",
+              width: 1.5,
+            }, // Generic marker
+          },
+        },
+        planets: {
+          show: true,
+          which: [
+            "sol",
+            "mer",
+            "ven",
+            "ter",
+            "lun",
+            "mar",
+            "jup",
+            "sat",
+            "ura",
+            "nep",
+          ],
+          symbols: {
+            sol: {  letter: "Su", fill: "#ffff00", size: "" },
+            mer: {  letter: "Me", fill: "#cccccc" },
+            ven: {  letter: "V", fill: "#eeeecc" },
+            ter: {  letter: "T", fill: "#00ccff" },
+            lun: {  letter: "L", fill: "#ffffff", size: "" }, // overridden by generated crecent, except letter & size
+            mar: {  letter: "Ma", fill: "#ff6600" },
+            cer: { letter: "C", fill: "#cccccc" },
+            ves: { letter: "Ma", fill: "#cccccc" },
+            jup: { letter: "J", fill: "#ffaa33" },
+            sat: { letter: "Sa", fill: "#ffdd66" },
+            ura: { letter: "U", fill: "#66ccff" },
+            nep: { letter: "N", fill: "#6666ff" },
+            plu: { letter: "P", fill: "#aaaaaa" },
+            eri: { letter: "E", fill: "#eeeeee" },
+          },
+          symbolStyle: {
+            fill: "#00ccff",
+            font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif",
+            align: "center",
+            baseline: "middle",
+          },
+          symbolType: "letter",
+          names: false,
+          nameStyle: {
+            fill: "#00ccff",
+            font: "14px 'Lucida Sans Unicode', Consolas, sans-serif",
+            align: "right",
+            baseline: "top",
+          },
+          namesType: "desig",
+        },
+        constellations: {
+          names: false,
+          lines: true,
+          lineStyle: { stroke: "#cccccc", width: 1, opacity: 0.6 },
+          bounds: false,
+        },
+        mw: { show: true, style: { fill: "#ffffff", opacity: 0.15 } },
+        lines: {
+          graticule: {
+            show: true,
+            stroke: "#cccccc",
+            width: 0.6,
+            opacity: 0.8,
+            lon: {
+              pos: [""],
+              fill: "#eee",
+              font: "10px Helvetica, Arial, sans-serif",
+            },
+            lat: {
+              pos: [""],
+              fill: "#eee",
+              font: "10px Helvetica, Arial, sans-serif",
+            },
+          },
+          equatorial: {
+            show: true,
+            stroke: "#aaaaaa",
+            width: 1.3,
+            opacity: 0.7,
+          },
+          ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },
+        },
+        background: {
+          fill: "#000032",
+          opacity: 1,
+          stroke: "#000000",
+          width: 1.5,
+        },
+        horizon: {
+          show: true,
+          stroke: "#cccccc",
+          width: 1.0,
+          fill: "#000000",
+          opacity: 0.5,
+        },
+        daylight: { show: false },
+        disableAnimations: true,
+      };
+
+      function timedRefresh() {
+        Celestial.display(config);
+        setInterval("update();", 5000);
+      }
+      function update() {
+        var dtc = new Date();
+        var gp = [40.7471690,-73.9199318];
+        zenith = Celestial.getPoint(Celestial.horizontal.inverse(dtc, [90, 0], gp), config.transform);
+        Celestial.rotate({center:zenith});
+      }
+    </script>
+
+    <footer id="d3-celestial-footer"></footer>
+  </body>
+</html>
